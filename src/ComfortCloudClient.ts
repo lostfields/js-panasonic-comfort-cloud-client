@@ -28,19 +28,29 @@ export class ComfortCloudClient {
   private axiosInstance: AxiosInstance
   public oauthClient: OAuthClient
 
-  private appVersion: string | undefined = ''
+  private _appVersion: string | undefined = ''
+  private _overriddenAppVersion: boolean = false
 
   private clientId: string = ''
   
 
   constructor(appVersion?: string) {
     this.appVersion = appVersion
-    if(!this.appVersion)
-      this.appVersion = this.defaultAppVersion
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
     })
     this.oauthClient = new OAuthClient(appVersion)
+  }
+
+  get appVersion(): string | undefined {
+    return this._appVersion
+  }
+
+  set appVersion(value: string | undefined) {
+    if(value) {
+      this._appVersion = value
+      this._overriddenAppVersion = true
+    }
   }
 
   async login(
@@ -49,6 +59,15 @@ export class ComfortCloudClient {
     refreshToken?: string
   ): Promise<string> {
     try {
+      if(!this._overriddenAppVersion) {
+        const version = await this.fetchAppVersion();
+        if(version) {
+          this._appVersion = version;
+        } else {
+          this._appVersion = this.defaultAppVersion;
+        }
+      }
+
       if(refreshToken) {
         const token = await this.oauthClient.refreshToken(refreshToken)
         if(token) {
@@ -235,5 +254,22 @@ export class ComfortCloudClient {
     }
 
     return null
+  }
+
+  async fetchAppVersion() {
+    try {
+      const response = await this.axiosInstance.get(
+        "https://play.google.com/store/apps/details?id=com.panasonic.ACCsmart"
+      );
+      
+      const versionMatch = String(response.data).match(/\["(\d+\.\d+\.\d+)"\]/);
+      if (versionMatch) {
+        return versionMatch[1];
+      }
+      
+      return null;
+    } catch (error) {
+      return null;
+    }
   }
 }
