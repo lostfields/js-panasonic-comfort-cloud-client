@@ -32,6 +32,7 @@ export class ComfortCloudClient {
 
   private clientId: string = ''
   
+  private _outputMode: 'raw' | 'pretty' = 'raw'
 
   constructor(appVersion?: string) {
     this.appVersion = appVersion
@@ -41,6 +42,14 @@ export class ComfortCloudClient {
       baseURL: this.baseUrl,
     })
     this.oauthClient = new OAuthClient(appVersion)
+  }
+
+  public set outputMode(value: 'raw' | 'pretty') {
+    this._outputMode = value
+  }
+
+  public get outputMode() {
+    return this._outputMode
   }
 
   async login(
@@ -104,10 +113,10 @@ export class ComfortCloudClient {
         if(Array.isArray(groupsResponse)) {
           const groups = Array.from(groupsResponse).map((element: any) => {
             const devices = Array.isArray(element.deviceList) ? element.deviceList.map((device: any) => 
-              new Device(device.deviceGuid, device.deviceName, device.parameters)
+              new Device(device.deviceGuid, device.deviceName, device.parameters, this._outputMode)
             ) : []
 
-            return new Group(element.groupId, element.groupName, devices)
+            return new Group(element.groupId, element.groupName, devices, this._outputMode)
           })
 
           return groups
@@ -134,7 +143,7 @@ export class ComfortCloudClient {
       )
       if (response.status == 200) {
         const responseData = response.data
-        const retDevice = new Device(id, name ?? '', responseData.parameters)
+        const retDevice = new Device(id, name ?? '', responseData.parameters, this._outputMode)
 
         return retDevice
       }
