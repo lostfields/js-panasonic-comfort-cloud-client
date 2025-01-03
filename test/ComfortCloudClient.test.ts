@@ -76,7 +76,7 @@ test('Device class', async () => {
   const device = new Device('', '', { 
     airSwingUD: AirSwingUD.DownMid, 
     operate: 'On'
-  })
+  }, 'pretty')
 
   device.operationMode = OperationMode.Cool
   device.fanSpeed = 'HighMid'
@@ -106,7 +106,7 @@ test('Device class', async () => {
     temperatureSet: 20
   })
 
-  const secondDevice = new Device('', '', device)
+  const secondDevice = new Device('', '', device, 'pretty')
 
   expect(secondDevice).toMatchObject(device)
 

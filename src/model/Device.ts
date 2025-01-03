@@ -74,10 +74,10 @@ export class Device {
   private _iAuto = 0
   private _airDirection = 0
   private _ecoFunctionData = 0
-  private _insideTemperature = 0
-  private _outTemperature = 0
+  private _insideTemperature?: number = undefined
+  private _outTemperature?: number = undefined
 
-  constructor(guid: string, name: string, parameters: Partial<Device> | Partial<ClassProperties<Device>> = {}) {
+  constructor(guid: string, name: string, parameters: Partial<Device> | Partial<ClassProperties<Device>> = {}, private outputMode: 'raw' | 'pretty' = 'raw') {
     this._guid = guid
     this._name = name
 
@@ -404,7 +404,7 @@ export class Device {
    * Getter insideTemperature
    * @return {number}
    */
-  public get insideTemperature(): number {
+  public get insideTemperature(): number | undefined {
     return this._insideTemperature
   }
 
@@ -420,7 +420,7 @@ export class Device {
    * Getter outTemperature
    * @return {number}
    */
-  public get outTemperature(): number {
+  public get outTemperature(): number | undefined {
     return this._outTemperature
   }
 
@@ -433,25 +433,50 @@ export class Device {
   }
 
   toJSON() {
-    return {
-      guid: this.guid,
-      name: this.name,
-      operate: Power[this.operate],
-      operationMode: OperationMode[this.operationMode],
-      temperatureSet: this.temperatureSet,
-      fanSpeed: FanSpeed[this.fanSpeed],
-      fanAutoMode: FanAutoMode[this.fanAutoMode],
-      airSwingLR: AirSwingLR[this.airSwingLR],
-      airSwingUD: AirSwingUD[this.airSwingUD],
-      ecoMode: EcoMode[this.ecoMode],
-      ecoNavi: this.ecoNavi,
-      nanoe: NanoeMode[this.nanoe],
-      iAuto: this.iAuto,
-      actualNanoe: this.actualNanoe,
-      airDirection:  this.airDirection,
-      ecoFunctionData: this.ecoFunctionData,
-      insideTemperature: this.insideTemperature,
-      outTemperature: this.outTemperature
+    switch(this.outputMode) {
+      case 'raw':
+        return {
+          guid: this.guid,
+          name: this.name,
+          operate: this.operate,
+          operationMode: this.operationMode,
+          temperatureSet: this.temperatureSet,
+          fanSpeed: this.fanSpeed,
+          fanAutoMode: this.fanAutoMode,
+          airSwingLR: this.airSwingLR,
+          airSwingUD: this.airSwingUD,
+          ecoMode: this.ecoMode,
+          ecoNavi: this.ecoNavi,
+          nanoe: this.nanoe,
+          iAuto: this.iAuto,
+          actualNanoe: this.actualNanoe,
+          airDirection:  this.airDirection,
+          ecoFunctionData: this.ecoFunctionData,
+          insideTemperature: this.insideTemperature,
+          outTemperature: this.outTemperature
+        }
+
+      default:
+        return {
+          guid: this.guid,
+          name: this.name,
+          operate: Power[this.operate],
+          operationMode: OperationMode[this.operationMode],
+          temperatureSet: this.temperatureSet,
+          fanSpeed: FanSpeed[this.fanSpeed],
+          fanAutoMode: FanAutoMode[this.fanAutoMode],
+          airSwingLR: AirSwingLR[this.airSwingLR],
+          airSwingUD: AirSwingUD[this.airSwingUD],
+          ecoMode: EcoMode[this.ecoMode],
+          ecoNavi: this.ecoNavi,
+          nanoe: NanoeMode[this.nanoe],
+          iAuto: this.iAuto,
+          actualNanoe: this.actualNanoe,
+          airDirection:  this.airDirection,
+          ecoFunctionData: this.ecoFunctionData,
+          insideTemperature: this.insideTemperature,
+          outTemperature: this.outTemperature
+        }
     }
   }
 
